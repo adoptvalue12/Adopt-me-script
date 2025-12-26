@@ -1,3 +1,21 @@
+_G.ToggleColor = Color3.fromRGB(82, 255, 122)
+
+local library = loadstring(game:HttpGet(('https://pastebin.com/raw/FsJak6AT')))()
+local w = library:CreateWindow("Adopt Me")
+
+local b = w:CreateFolder("Pet Autofarm")
+b:Toggle("Toggle",function(bool)
+    _G.auto = bool
+    for i,v in pairs(game:GetService("Players").LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments:GetChildren()) do
+        if v:IsA("ImageButton") and _G.auto then
+            local ailment = v.Name
+            game:GetService("ReplicatedStorage").API["MonitorAPI/AddAdditive"]:FireServer(ailment,1)
+        end
+    end
+end)
+
+b:DestroyGUI()
+
 game.StarterGui:SetCore("SendNotification", {Title = "Made By Velcori#1570",Text = "Adopt Me Pet Autofarm",Duration = 5,})
 
 local vu = game:GetService("VirtualUser")
