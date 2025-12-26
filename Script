@@ -1,153 +1,128 @@
-_G.ToggleColor = Color3.fromRGB(82, 255, 122)
+loadstring([[
+-- Improved Adopt Me AutoFarm (Xeno-friendly, safer-ish)
 
-local b = w:CreateFolder("Pet Autofarm")
-b:Toggle("Toggle",function(bool)
-    _G.auto = bool
-    for i,v in pairs(game:GetService("Players").LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments:GetChildren()) do
-        if v:IsA("ImageButton") and _G.auto then
-            local ailment = v.Name
-            game:GetService("ReplicatedStorage").API["MonitorAPI/AddAdditive"]:FireServer(ailment,1)
-        end
+local gui = Instance.new("ScreenGui")
+local frame = Instance.new("Frame")
+local title = Instance.new("TextLabel")
+local startBtn = Instance.new("TextButton")
+local stopBtn = Instance.new("TextButton")
+local status = Instance.new("TextLabel")
+
+gui.Name = "AdoptMeAutoFarm"
+gui.Parent = game.CoreGui
+
+frame.Size = UDim2.new(0, 260, 0, 180)
+frame.Position = UDim2.new(0.5, -130, 0.5, -90)
+frame.BackgroundColor3 = Color3.new(0.15, 0.15, 0.15)
+frame.Active = true
+frame.Draggable = true
+frame.Parent = gui
+
+title.Size = UDim2.new(1, 0, 0, 30)
+title.Text = "Safer Adopt Me AutoFarm"
+title.TextColor3 = Color3.new(1, 1, 1)
+title.BackgroundTransparency = 1
+title.Parent = frame
+
+startBtn.Size = UDim2.new(1, -20, 0, 45)
+startBtn.Position = UDim2.new(0, 10, 0, 40)
+startBtn.Text = "Start AutoFarm"
+startBtn.TextColor3 = Color3.new(1, 1, 1)
+startBtn.BackgroundColor3 = Color3.new(0, 0.5, 0)
+startBtn.Parent = frame
+
+stopBtn.Size = UDim2.new(1, -20, 0, 45)
+stopBtn.Position = UDim2.new(0, 10, 0, 90)
+stopBtn.Text = "Stop AutoFarm"
+stopBtn.TextColor3 = Color3.new(1, 1, 1)
+stopBtn.BackgroundColor3 = Color3.new(0.5, 0, 0)
+stopBtn.Parent = frame
+
+status.Size = UDim2.new(1, 0, 0, 20)
+status.Position = UDim2.new(0, 0, 1, -20)
+status.Text = "Status: Idle"
+status.TextColor3 = Color3.new(1, 1, 0)
+status.BackgroundTransparency = 1
+status.Parent = frame
+
+local running = false
+local player = game.Players.LocalPlayer
+
+local locations = {
+    {name = "School", pos = Vector3.new(-28, 21, -680)},
+    {name = "Playground", pos = Vector3.new(336, 22, -597)},
+    {name = "Hospital", pos = Vector3.new(214, 22, -764)},
+    {name = "Campsite", pos = Vector3.new(-1422, 21, 469)},
+    {name = "Hot Springs", pos = Vector3.new(-1083, 21, -143)},
+    {name = "Pet Shop", pos = Vector3.new(33, 21, -713)},
+    {name = "Nursery", pos = Vector3.new(33, 21, -904)},
+    {name = "Pizza Shop", pos = Vector3.new(378, 22, -820)},
+    {name = "Salon", pos = Vector3.new(235, 22, -635)},
+}
+
+local function teleportTo(pos)
+    if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+        player.Character.HumanoidRootPart.CFrame = CFrame.new(pos)
     end
-end)
-
-b:DestroyGUI()
-
-game.StarterGui:SetCore("SendNotification", {Title = "Made By Velcori#1570",Text = "Adopt Me Pet Autofarm",Duration = 5,})
-
-local vu = game:GetService("VirtualUser")
-game:GetService("Players").LocalPlayer.Idled:connect(function()
-   vu:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
-   wait(1)
-   vu:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
-end)
-
-for Name, Remote in pairs(debug.getupvalue(require(game:service'ReplicatedStorage'.Fsys).load("RouterClient").init, 4)) do
-    Remote.Name = Name
 end
 
-game:GetService("ReplicatedStorage").API:FindFirstChild("TeamAPI/ChooseTeam"):InvokeServer("Babies",true)
-
---player tasks
-game:GetService("Players").LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments.ChildAdded:Connect(function(v2)
-    if v2:IsA("ImageButton") and _G.auto then
-        local ailment = v2.Name
-        game:GetService("ReplicatedStorage").API["MonitorAPI/AddAdditive"]:FireServer(ailment,1)
-    end
-end)
-
-for i,v in pairs(game:GetService("Players").LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments:GetChildren()) do
-    if v:IsA("ImageButton") and _G.auto then
-        local ailment = v.Name
-        game:GetService("ReplicatedStorage").API["MonitorAPI/AddAdditive"]:FireServer(ailment,1)
-    end
-end
-
---sick
-game.Players.LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments.ChildAdded:Connect(function(sick)
-    if sick.Name == "sick" and _G.auto then
-        game:GetService("ReplicatedStorage").API:FindFirstChild("AdoptAPI/EjectBaby"):FireServer(workspace.Pets:FindFirstChild("HumanoidRootPart", true).Parent)
-        game:GetService("ReplicatedStorage").API:FindFirstChild("MonitorAPI/HealWithDoctor"):FireServer()
-    end
-end)
-
---thirsty
-game.Players.LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments.ChildAdded:Connect(function(thirsty)
-    if thirsty.Name == "thirsty" and _G.auto then
-        game:GetService("ReplicatedStorage").API:FindFirstChild("AdoptAPI/EjectBaby"):FireServer(workspace.Pets:FindFirstChild("HumanoidRootPart", true).Parent)
-        game:GetService("ReplicatedStorage").API["ShopAPI/BuyItem"]:InvokeServer("food","water",{})
-        wait(5)
-        local tool = game.Players.LocalPlayer.Character.GenericTool:FindFirstChild("unique")
-        game:GetService("ReplicatedStorage").API["PetAPI/ConsumeFoodItem"]:FireServer(tool.Value)
-    end
-end)
-
-
---hungry
-game.Players.LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments.ChildAdded:Connect(function(hungry)
-    if hungry.Name == "hungry" and _G.auto then
-        game:GetService("ReplicatedStorage").API:FindFirstChild("AdoptAPI/EjectBaby"):FireServer(workspace.Pets:FindFirstChild("HumanoidRootPart", true).Parent)
-        game:GetService("ReplicatedStorage").API:FindFirstChild("ShopAPI/BuyItem"):InvokeServer("food","apple",{})
-        wait(5)
-        local tool = game.Players.LocalPlayer.Character.GenericTool:FindFirstChild("unique")
-        game:GetService("ReplicatedStorage").API["PetAPI/ConsumeFoodItem"]:FireServer(tool.Value)
-    end
-end)
-
---shower
-game:GetService("Players").LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments.ChildAdded:Connect(function(dirty)
-    if dirty.Name == "dirty" and _G.auto then
-        game:GetService("ReplicatedStorage").API:FindFirstChild("AdoptAPI/EjectBaby"):FireServer(workspace.Pets:FindFirstChild("HumanoidRootPart", true).Parent)
-        game:GetService("ReplicatedStorage").API["HousingAPI/SubscribeToHouse"]:FireServer(game:GetService("Players").LocalPlayer)
-        wait(15)
-        game:GetService("ReplicatedStorage").API["HousingAPI/SubscribeToHouse"]:FireServer(game:GetService("Players").LocalPlayer)
-        wait(15)
-        for i,v in pairs(game:GetService("Workspace").HouseInteriors.furniture:GetDescendants()) do
-            for i,v2 in pairs(game:GetService("Workspace").Pets:GetChildren()) do
-                if v:IsA("Model") and v.Name == "ModernShower" then
-                    local plr = game.Players.LocalPlayer
-                    local location = plr.Character.HumanoidRootPart.CFrame
-                    game:GetService("ReplicatedStorage").API["HousingAPI/ActivateFurniture"]:InvokeServer(game:GetService("Players").LocalPlayer,v.Parent.Name,"UseBlock",{["cframe"] = location},workspace.Pets[v2.Name])
+local function doPetTasks()
+    local pets = workspace:FindFirstChild("Pets")
+    if pets then
+        for _, pet in pairs(pets:GetChildren()) do
+            if pet:FindFirstChild("Owner") and pet.Owner.Value == player then
+                for _, part in pairs(workspace:GetDescendants()) do
+                    if part:IsA("ProximityPrompt") and
+                       (part.Name:lower():find("sleep") or part.Name:lower():find("bed") or part.Name:lower():find("bowl") or part.Name:lower():find("water")) then
+                        fireproximityprompt(part)
+                        wait(math.random(1,2))
+                    end
                 end
             end
         end
-        wait(10)
-        game:GetService("ReplicatedStorage").API["HousingAPI/UnsubscribeFromHouse"]:InvokeServer(game:GetService("Players").LocalPlayer)
-        game:GetService("ReplicatedStorage").API["LocationAPI/SetLocation"]:FireServer("MainMap",game:GetService("Players").LocalPlayer)
-        game:GetService("ReplicatedStorage").API:FindFirstChild("AdoptAPI/EjectBaby"):FireServer(workspace.Pets:FindFirstChild("HumanoidRootPart", true).Parent)
     end
-end)
+end
 
---sleepy
-game:GetService("Players").LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments.ChildAdded:Connect(function(sleepy)
-    if sleepy.Name == "sleepy" and _G.auto then
-    game:GetService("ReplicatedStorage").API:FindFirstChild("AdoptAPI/EjectBaby"):FireServer(workspace.Pets:FindFirstChild("HumanoidRootPart", true).Parent)
-        for i,v in pairs(game:GetService("Workspace").Pets:GetChildren()) do
-            local plr = game.Players.LocalPlayer
-            game:GetService("ReplicatedStorage").API["HousingAPI/ActivateInteriorFurniture"]:InvokeServer("F-4","UseBlock",{["cframe"] = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame},workspace.Pets[v.Name])
-            wait(15)
-            game:GetService("ReplicatedStorage").API:FindFirstChild("AdoptAPI/EjectBaby"):FireServer(workspace.Pets:FindFirstChild("HumanoidRootPart", true).Parent)
+local function randomWait(min, max)
+    wait(math.random(min * 100, max * 100) / 100)
+end
+
+local function antiAfk()
+    game:GetService("Players").LocalPlayer.Idled:Connect(function()
+        local vu = game:GetService("VirtualUser")
+        vu:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+        wait(1)
+        vu:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+    end)
+end
+
+local function runAutoFarm()
+    antiAfk()
+    while running do
+        for _, loc in pairs(locations) do
+            if not running then break end
+            teleportTo(loc.pos)
+            status.Text = "Status: "..loc.name
+            doPetTasks()
+            randomWait(6, 12)
+            if math.random(1, 10) == 5 then
+                status.Text = "Status: Taking a short break..."
+                wait(math.random(20, 40))
+            end
         end
     end
-end)
-
---school
-game:GetService("Players").LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments.ChildAdded:Connect(function(school)
-    if school.Name == "school" and _G.auto then
-    game:GetService("ReplicatedStorage").API:FindFirstChild("AdoptAPI/EjectBaby"):FireServer(workspace.Pets:FindFirstChild("HumanoidRootPart", true).Parent)
-        game:GetService("ReplicatedStorage").API["LocationAPI/SetLocation"]:FireServer("School",game:GetService("Players").LocalPlayer)
-        wait(60)
-        game:GetService("ReplicatedStorage").API["LocationAPI/SetLocation"]:FireServer("MainMap",game:GetService("Players").LocalPlayer)
-        game:GetService("ReplicatedStorage").API:FindFirstChild("AdoptAPI/EjectBaby"):FireServer(workspace.Pets:FindFirstChild("HumanoidRootPart", true).Parent)
-    end
-end)
-
---hot spring
-game:GetService("Players").LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments.ChildAdded:Connect(function(hotspring)
-    if hotspring.Name == "hot_spring" and _G.auto then
-        local plr = game.Players.LocalPlayer
-        plr.Character.HumanoidRootPart.CFrame = CFrame.new(-540.514893, 21.1094208, -1476.4751)
-        game:GetService("ReplicatedStorage").API:FindFirstChild("AdoptAPI/EjectBaby"):FireServer(workspace.Pets:FindFirstChild("HumanoidRootPart", true).Parent)
-    end
-end)
-
---camping
-game:GetService("Players").LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments.ChildAdded:Connect(function(camping)
-    if camping.Name == "camping" and _G.auto then
-        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-33.3429451, 18.696888, -1075.37952)
-        game:GetService("ReplicatedStorage").API:FindFirstChild("AdoptAPI/EjectBaby"):FireServer(workspace.Pets:FindFirstChild("HumanoidRootPart", true).Parent)
-    end
-end)
-
-
---bored
-game:GetService("Players").LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments.ChildAdded:Connect(function(bored)
-    if bored.Name == "bored" and _G.auto then
-        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-379.855438, 17.404089, -1749.80933)
-        game:GetService("ReplicatedStorage").API:FindFirstChild("AdoptAPI/EjectBaby"):FireServer(workspace.Pets:FindFirstChild("HumanoidRootPart", true).Parent)
-    end
-end)
-
-while _G.auto do wait(10)
-    game:GetService("ReplicatedStorage").API:FindFirstChild("PayAPI/CashOut"):InvokeServer()
 end
+
+startBtn.MouseButton1Click:Connect(function()
+    if not running then
+        running = true
+        status.Text = "Status: Running"
+        spawn(runAutoFarm)
+    end
+end)
+
+stopBtn.MouseButton1Click:Connect(function()
+    running = false
+    status.Text = "Status: Stopped"
+end)
+]])()
